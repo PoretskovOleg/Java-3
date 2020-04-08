@@ -63,4 +63,8 @@ public class ClientChat extends JFrame{
     public void showError(String message) {
         JOptionPane.showMessageDialog(this, message);
     }
+
+    public void showHistory(String history) {
+        appendMessage(history);
+    }
 }

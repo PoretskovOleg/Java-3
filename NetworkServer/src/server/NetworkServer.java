@@ -7,7 +7,6 @@ import server.client.ClientHandler;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,18 +48,24 @@ public class NetworkServer {
         return authService;
     }
 
-    public synchronized void broadcastMessage(String message, ClientHandler owner) throws IOException {
+    public synchronized void broadcastMessage(String message, ClientHandler owner, boolean isAddToHistory) throws IOException {
+        owner.writeHistory("Я: " + message, isAddToHistory);
+        String sendMessage = owner.getNickname() + ": " + message;
         for (ClientHandler client : clients) {
             if (client != owner) {
-                client.sendMessage(message);
+                client.sendMessage(sendMessage);
+                client.writeHistory(sendMessage, isAddToHistory);
             }
         }
     }
 
-    public synchronized void sendClientMessage(String message, String nickname) throws IOException {
+    public synchronized void sendClientMessage(String message, String nickname, ClientHandler owner) throws IOException {
+        owner.writeHistory("Я: " + message, true);
+        String sendMessage = owner.getNickname() + ": " + message;
         for (ClientHandler client : clients) {
             if (client.getNickname().equals(nickname)) {
-                client.sendMessage(message);
+                client.sendMessage(sendMessage);
+                client.writeHistory(sendMessage, true);
                 break;
             }
         }

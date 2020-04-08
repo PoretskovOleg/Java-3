@@ -2,9 +2,7 @@ package server.client;
 
 import server.NetworkServer;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 import java.sql.SQLException;
 
@@ -17,6 +15,7 @@ public class ClientHandler {
     private DataOutputStream out;
 
     private String nickname;
+    private static final String DIR_HISTORY = "NetworkServer/src/server/client/history/";
 
     public ClientHandler(NetworkServer networkServer, Socket socket) {
         this.networkServer = networkServer;
@@ -62,9 +61,9 @@ public class ClientHandler {
                 String[] arMessage = message.split("\\s+", 3);
                 String toNickName = arMessage[1];
                 String messageForClient = arMessage[2];
-                networkServer.sendClientMessage(messageForClient, toNickName);
+                networkServer.sendClientMessage(messageForClient, toNickName, this);
             } else {
-                networkServer.broadcastMessage(nickname + ": " + message, this);
+                networkServer.broadcastMessage(message, this, true);
             }
         }
     }
@@ -82,7 +81,7 @@ public class ClientHandler {
                     sendMessage("Не верно введены логин или пароль");
                 } else {
                     nickname = userName;
-                    networkServer.broadcastMessage(String.format("Пользователь %s зашел в чат", userName), this);
+                    networkServer.broadcastMessage(String.format("Пользователь %s зашел в чат", userName), this, false);
                     sendMessage("/auth " + userName);
                     networkServer.subscribe(this);
                     break;
@@ -97,5 +96,15 @@ public class ClientHandler {
 
     public String getNickname() {
         return nickname;
+    }
+
+    public void writeHistory(String message, boolean writeHistory) throws IOException {
+        if (writeHistory) {
+            FileWriter fileWriter = new FileWriter(DIR_HISTORY + "history_" + nickname + ".txt", true);
+            BufferedWriter writer = new BufferedWriter(fileWriter);
+            writer.write(message);
+            writer.newLine();
+            writer.close();
+        }
     }
 }

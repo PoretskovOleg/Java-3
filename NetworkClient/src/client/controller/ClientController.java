@@ -4,7 +4,8 @@ import client.model.NetworkService;
 import client.view.AuthDialog;
 import client.view.ClientChat;
 
-import java.io.IOException;
+import java.io.*;
+import java.util.ArrayList;
 
 public class ClientController {
 
@@ -12,6 +13,8 @@ public class ClientController {
     private final AuthDialog authDialog;
     private final ClientChat clientChat;
     private String nickname;
+    private static final String DIR_HISTORY = "NetworkServer/src/server/client/history/";
+    private static final int HISTORY_LINES = 10;
 
     public ClientController(String serverHost, int serverPort) {
         this.networkService = new NetworkService(serverHost, serverPort);
@@ -38,6 +41,39 @@ public class ClientController {
         networkService.setMessageHandler(clientChat::appendMessage);
         clientChat.setTitle(nickname);
         clientChat.setVisible(true);
+        showHistory();
+    }
+
+    private void showHistory() {
+        StringBuilder history = new StringBuilder();
+        try {
+            FileReader fileReader = new FileReader(DIR_HISTORY + "history_" + nickname + ".txt");
+            BufferedReader reader = new BufferedReader(fileReader);
+
+            ArrayList<String> historyList = new ArrayList<>();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                historyList.add(line);
+            }
+
+            int startIndex = 0;
+            int endIndex = historyList.size();
+            if (endIndex > HISTORY_LINES) {
+                startIndex = endIndex - HISTORY_LINES;
+            }
+
+            for (int i = startIndex; i < endIndex; i++) {
+                history.append(historyList.get(i));
+                if (i < endIndex - 1) {
+                    history.append(System.lineSeparator());
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        clientChat.showHistory(history.toString());
     }
 
     private void setUserName(String nickname) {
