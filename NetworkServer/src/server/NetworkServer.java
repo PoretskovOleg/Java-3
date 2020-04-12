@@ -1,5 +1,6 @@
 package server;
 
+import org.apache.log4j.Logger;
 import server.auth.AuthService;
 import server.auth.BaseAuthService;
 import server.client.ClientHandler;
@@ -12,6 +13,7 @@ import java.util.List;
 
 public class NetworkServer {
 
+    private static final Logger logger = Logger.getLogger(NetworkServer.class);
     private final int port;
     private AuthService authService;
     private final List<ClientHandler> clients = new ArrayList<>();
@@ -24,15 +26,18 @@ public class NetworkServer {
     public void start() {
         try(ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.println("Сервер был успешно запущен на порту " + port);
+            logger.info("Сервер был успешно запущен на порту " + port);
             authService.start();
             while (true) {
                 System.out.println("Ожидание клиентского подключения...");
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("Клиент подключился");
+                logger.info("Клиент подключился");
                 createClientHandler(clientSocket);
             }
         } catch (IOException e) {
             System.out.println("Ошибка при работе сервера");
+            logger.error("Ошибка при работе сервера", e);
             e.printStackTrace();
         } finally {
             authService.stop();
@@ -50,6 +55,7 @@ public class NetworkServer {
 
     public synchronized void broadcastMessage(String message, ClientHandler owner, boolean isAddToHistory) throws IOException {
         owner.writeHistory("Я: " + message, isAddToHistory);
+        logger.info("Пользователь " + owner.getNickname() + " прислал сообщение: " + message);
         String sendMessage = owner.getNickname() + ": " + message;
         for (ClientHandler client : clients) {
             if (client != owner) {
@@ -61,6 +67,7 @@ public class NetworkServer {
 
     public synchronized void sendClientMessage(String message, String nickname, ClientHandler owner) throws IOException {
         owner.writeHistory("Я: " + message, true);
+        logger.info("Пользователь " + owner.getNickname() + " прислал сообщение: " + message);
         String sendMessage = owner.getNickname() + ": " + message;
         for (ClientHandler client : clients) {
             if (client.getNickname().equals(nickname)) {
