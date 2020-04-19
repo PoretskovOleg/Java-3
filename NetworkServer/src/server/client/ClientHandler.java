@@ -5,6 +5,7 @@ import server.NetworkServer;
 import java.io.*;
 import java.net.Socket;
 import java.sql.SQLException;
+import java.util.concurrent.ExecutorService;
 
 public class ClientHandler {
 
@@ -22,12 +23,12 @@ public class ClientHandler {
         this.clientSocket = socket;
     }
 
-    public void run() {
+    public void run(ExecutorService executorService) {
         try {
             in = new DataInputStream(clientSocket.getInputStream());
             out = new DataOutputStream(clientSocket.getOutputStream());
 
-            new Thread(() -> {
+            executorService.execute(() -> {
                 try {
                     authentication();
                     readMessages();
@@ -36,7 +37,7 @@ public class ClientHandler {
                 } finally {
                     closeConnection();
                 }
-            }).start();
+            });
 
         } catch (IOException e) {
             e.printStackTrace();

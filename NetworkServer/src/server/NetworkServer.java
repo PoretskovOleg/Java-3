@@ -9,12 +9,16 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class NetworkServer {
 
     private final int port;
     private AuthService authService;
     private final List<ClientHandler> clients = new ArrayList<>();
+
+    private static final ExecutorService executorService = Executors.newFixedThreadPool(5);
 
     public NetworkServer(int port) {
         this.port = port;
@@ -36,12 +40,13 @@ public class NetworkServer {
             e.printStackTrace();
         } finally {
             authService.stop();
+            executorService.shutdown();
         }
     }
 
     private void createClientHandler(Socket clientSocket) {
         ClientHandler clientHandler = new ClientHandler(this, clientSocket);
-        clientHandler.run();
+        clientHandler.run(executorService);
     }
 
     public AuthService getAuthService() {
