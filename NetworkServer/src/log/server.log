@@ -1,0 +1,7 @@
+2020-04-12 19:40:23 [main] INFO  server.NetworkServer - Сервер был успешно запущен на порту 8180
+2020-04-12 19:40:42 [main] INFO  server.NetworkServer - Клиент подключился
+2020-04-12 19:40:55 [Thread-0] INFO  server.NetworkServer - Пользователь username1 прислал сообщение: Пользователь username1 зашел в чат
+2020-04-12 19:41:03 [main] INFO  server.NetworkServer - Клиент подключился
+2020-04-12 19:41:11 [Thread-1] INFO  server.NetworkServer - Пользователь username2 прислал сообщение: Пользователь username2 зашел в чат
+2020-04-12 19:41:29 [Thread-0] INFO  server.NetworkServer - Пользователь username1 прислал сообщение: Привет
+2020-04-12 19:41:35 [Thread-1] INFO  server.NetworkServer - Пользователь username2 прислал сообщение: Привет
